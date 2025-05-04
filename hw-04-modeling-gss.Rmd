@@ -1,6 +1,7 @@
 ---
 title: "HW 04 - Modeling the GSS"
-output: html_document
+author: "Yaoxing Qian"
+output: 
 ---
 
 ```{r include = FALSE}
@@ -364,8 +365,52 @@ The question is phrased as the following.
 Answers to this question are stored in the `harass5` variable in our dataset.
 
 12. Create a subset of the data that only contains `Yes` and `No` answers for the harassment question. How many responses chose each of these answers?
+
+
+```{r 12-harass-count, message=FALSE, warning=FALSE}
+library(tidyverse)
+
+harass_counts <- gss16 %>%
+  filter(harass5 %in% c("Yes", "No")) %>%
+  count(harass5)
+
+harass_counts
+```
+**1136** respondents answered “No”, **237** respondents answered “Yes”
+
 13. Describe how bootstrapping can be used to estimate the proportion of Americans who have been harassed by their superiors or co-workers at their job.
+
+***I’ll use our filtered data as the “original” sample, then repeat these steps 2,000 times***
+***1.Draw a bootstrap sample of the same size with replacement from the original data.***
+***2.Compute the fraction of harass5 == "Yes" in that sample.***
+***3.Save that proportion.***
+***4.After looping, I’ll have a distribution of those proportions. I can then take its 2.5th and 97.5th percentiles to form a 95% confidence interval, or look at the distribution’s standard deviation as an estimate of uncertainty.***
+
+
+```{r}
+set.seed(2025)
+B <- 2000
+n    <- nrow(gss16 %>% filter(harass5 %in% c("Yes","No")))
+data <- gss16 %>% filter(harass5 %in% c("Yes","No"))
+
+boot_props <- replicate(B, {
+  samp <- data[sample(seq_len(n), size = n, replace = TRUE), ]
+  mean(samp$harass5 == "Yes")
+})
+
+quantile(boot_props, c(0.025, 0.975))
+```
+
 14. Calculate a 95% bootstrap confidence interval for the proportion of Americans who have been harassed by their superiors or co-workers at their job. Interpret this interval in context of the data.
+***After 2,000 bootstrap resamplings, I found that the 95% confidence interval for the harassment rate is between 15.3% and 19.2%. In other words, I can be 95% sure that approximately 15.3%–19.2% of Americans have been harassed at work by their supervisors or colleagues.***
+
+```{r}
+quantile(boot_props, c(0.025, 0.975))
+```
+
 15. Would you expect a 90% confidence interval to be wider or narrower than the interval you calculated above? Explain your reasoning.
+
+***If the confidence level is lowered to 90%, the confidence interval will become narrower, because the 90% CI only needs to cover the range from approximately the 5th to the 95th percentile, unlike the 95% CI which also extends to the 2.5th and 97.5th percentiles, so it does not have to include the most extreme values at both ends, and the interval is naturally smaller.***
+
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards and review the md document on GitHub to make sure you're happy with the final state of your work.*
