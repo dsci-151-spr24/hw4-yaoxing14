@@ -1,8 +1,12 @@
 ---
 title: "HW 04 - Modeling the GSS"
 author: "Yaoxing Qian"
-output: 
+output:
+  pdf_document:
+    latex_engine: xelatex
+
 ---
+
 
 ```{r include = FALSE}
 knitr::opts_chunk$set(
@@ -215,7 +219,7 @@ gss16_wflow_1 <- workflow() %>%
 
 gss16_wflow_1
 ```
-***I created a shell and put the logistic regression model and preprocessing pipeline into it.***
+***I created it and put the logistic regression model and preprocessing into it.***
 
 8.  Perform 5-fold cross validation.
     specifically,
